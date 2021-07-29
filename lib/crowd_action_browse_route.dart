@@ -1,4 +1,5 @@
 import 'package:collaction_app/api/api.dart';
+import 'package:collaction_app/api/graphql_api.dart';
 import 'package:collaction_app/models/crowd_action_model.dart';
 import 'package:collaction_app/crowd_actions_details_route.dart';
 import 'utilities.dart';
@@ -18,7 +19,7 @@ class _CrowdActionBrowseRouteState extends State<CrowdActionBrowseRoute> {
     return Scaffold(
       appBar: AppBar(),
       body: FutureBuilder<Object>(
-          future: API.fetchCrowdActions(),
+          future: GraphQL_API.fetchCrowdActions(),
           builder: (context, snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
               return Center(child: CircularProgressIndicator());

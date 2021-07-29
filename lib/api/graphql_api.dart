@@ -1,34 +1,100 @@
+import 'dart:math';
+
+import 'package:collaction_app/models/crowd_action_model.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-void main() async {
+import '../dummy_data.dart';
+import '../home_screen.dart';
 
+String get_crowdactions_query = """
+{
+crowdactions{
+  name
+  description
+  }
+}
+""";
+
+final QueryOptions options = QueryOptions(
+  document: gql(get_crowdactions_query),
+);
+
+// Setting up the GraphQL interaction client as a global variable
+final HttpLink httpLink = HttpLink(
+  'https://192.168.0.169:44301/graphql',
+);
+
+ValueNotifier<GraphQLClient> client = ValueNotifier(
+  GraphQLClient(
+    link: httpLink,
+// The default store is the InMemoryStore, which does NOT persist to disk
+    cache: GraphQLCache(store: HiveStore()),
+  ),
+);
+
+
+class GraphQL_API {
+  static Future<List<CrowdActionModel>> fetchCrowdActions() async {
+    await Future.delayed(Duration(seconds: 1));
+    String response = await _fetchCrowdActionsString();
+    List<CrowdActionModel> models =
+    GraphQL_Parser.parseCollactionActionString(response);
+    return models;
+  }
+
+  static Future<String> _fetchCrowdActionsString() async {
+    // Asynchronously requests the available crowdactions through the client
+    // NOTE: currently returns an exception since local backend is empty
+    final QueryResult response = await client.value.query(options);
+    String result = '';
+
+    if (response.hasException) {
+      // For now we expect an exception, as there are no
+      print(response.exception.toString());
+    }
+
+    return result;
+  }
+}
+
+class GraphQL_Parser {
+  static List<CrowdActionModel> parseCollactionActionString(String input) {
+    List<CrowdActionModel> dummies = DummyData.dummyModels;
+    List<CrowdActionModel> moreDummies = DummyData.moreDummyTitles.map((title) {
+      Random random = Random();
+      int participants = random.nextInt(1000);
+      int participantsGoal = random.nextInt(2000);
+      return CrowdActionModel(
+        title: title,
+        numParticipants: participants,
+        participantsGoal: participantsGoal,
+      );
+    }).toList();
+
+    return dummies + moreDummies;
+  }
+}
+
+void main() async {
   // We're using HiveStore for persistence,
   // so we need to initialize Hive.
   await initHiveForFlutter();
+  runApp(MyApp());
+}
 
-  final HttpLink httpLink = HttpLink(
-    'https://localhost:44301/graphql',
-  );
-
-
-  // Doesn't  need auth
-  // final AuthLink authLink = AuthLink(
-  //   getToken: () async => 'Bearer <YOUR_PERSONAL_ACCESS_TOKEN>',
-  //   // OR
-  //   // getToken: () => 'Bearer <YOUR_PERSONAL_ACCESS_TOKEN>',
-  // );
-
-  ValueNotifier<GraphQLClient> client = ValueNotifier(
-    GraphQLClient(
-      link: httpLink,
-      // The default store is the InMemoryStore, which does NOT persist to disk
-      cache: GraphQLCache(store: HiveStore()),
-    ),
-  );
-
-
-
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GraphQLProvider(
+        client: client,
+        child: MaterialApp(
+            title: 'Welcome to CollAction',
+            theme: ThemeData(
+              primaryColor: Color(0xff23d884),
+            ),
+            home: HomeScreen()));
+  }
 }
 
 /*
