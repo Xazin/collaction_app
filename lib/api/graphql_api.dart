@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:collaction_app/api/queries.dart';
 import 'package:collaction_app/models/crowd_action_model.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -7,22 +8,13 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import '../dummy_data.dart';
 import '../home_screen.dart';
 
-String get_crowdactions_query = """
-{
-crowdactions{
-  name
-  description
-  }
-}
-""";
-
 final QueryOptions options = QueryOptions(
   document: gql(get_crowdactions_query),
 );
 
-// Setting up the GraphQL interaction client as a global variable
+// Link to the collaction API
 final HttpLink httpLink = HttpLink(
-  'https://192.168.0.169:44301/graphql',
+  'https://api.collaction.org/graphql',
 );
 
 ValueNotifier<GraphQLClient> client = ValueNotifier(
@@ -35,44 +27,44 @@ ValueNotifier<GraphQLClient> client = ValueNotifier(
 
 
 class GraphQL_API {
+
   static Future<List<CrowdActionModel>> fetchCrowdActions() async {
+    // Gets the crowdactions from the API and parses them
     await Future.delayed(Duration(seconds: 1));
-    String response = await _fetchCrowdActionsString();
+    QueryResult response = await _fetchCrowdActionsString();
     List<CrowdActionModel> models =
     GraphQL_Parser.parseCollactionActionString(response);
     return models;
   }
 
-  static Future<String> _fetchCrowdActionsString() async {
+  static Future<QueryResult> _fetchCrowdActionsString() async {
     // Asynchronously requests the available crowdactions through the client
-    // NOTE: currently returns an exception since local backend is empty
     final QueryResult response = await client.value.query(options);
-    String result = '';
 
     if (response.hasException) {
-      // For now we expect an exception, as there are no
       print(response.exception.toString());
     }
-
-    return result;
+    return response;
   }
 }
 
 class GraphQL_Parser {
-  static List<CrowdActionModel> parseCollactionActionString(String input) {
-    List<CrowdActionModel> dummies = DummyData.dummyModels;
-    List<CrowdActionModel> moreDummies = DummyData.moreDummyTitles.map((title) {
-      Random random = Random();
-      int participants = random.nextInt(1000);
-      int participantsGoal = random.nextInt(2000);
+  static List<CrowdActionModel> parseCollactionActionString(QueryResult input) {
+    // Read the response from the server and convert it to a list of
+    // CrowdactionModel objects
+    List<dynamic> parsed = input.data['crowdactions'].map( (crowdaction) {
+      String name = crowdaction['name'];
+      String description = crowdaction['description'];
+
       return CrowdActionModel(
-        title: title,
-        numParticipants: participants,
-        participantsGoal: participantsGoal,
+        title: name,
+        description: description,
       );
     }).toList();
 
-    return dummies + moreDummies;
+    List<CrowdActionModel> models = List<CrowdActionModel>.from(parsed);
+
+    return models;
   }
 }
 
@@ -96,90 +88,3 @@ class MyApp extends StatelessWidget {
             home: HomeScreen()));
   }
 }
-
-/*
-crowdaction(
-  id: ID = null
-  ids: [ID] = null
-  orderBy: [OrderByGraph] = null
-  where: [WhereExpressionGraph] = null
-  skip: Int = null
-  take: Int = null
-): CrowdactionGraph!
-
-crowdactionComment(
-  id: ID = null
-  ids: [ID] = null
-  orderBy: [OrderByGraph] = null
-  where: [WhereExpressionGraph] = null
-  skip: Int = null
-  take: Int = null
-): CrowdactionCommentGraph!
-
-crowdactionCommentCount(
-  crowdactionId: ID = null
-  status: CrowdactionCommentStatus = null
-): Int!
-
-crowdactionComments(
-  id: ID = null
-  ids: [ID] = null
-  orderBy: [OrderByGraph] = null
-  where: [WhereExpressionGraph] = null
-  skip: Int = null
-  take: Int = null
-  crowdactionId: ID = null
-  status: CrowdactionCommentStatus = null
-): [CrowdactionCommentGraph]
-
-crowdactionCount(
-  status: SearchCrowdactionStatus = null
-  category: Category = null
-): Int!
-
-crowdactions(
-  id: ID = null
-  ids: [ID] = null
-  orderBy: [OrderByGraph] = null
-  where: [WhereExpressionGraph] = null
-  skip: Int = null
-  take: Int = null
-  status: SearchCrowdactionStatus = nullcategory: Category = null
-): [CrowdactionGraph]
-
-currentUser(
-  id: ID = null
-  ids: [ID] = null
-  orderBy: [OrderByGraph] = null
-  where: [WhereExpressionGraph] = null
-  skip: Int = null
-  take: Int = null
-): ApplicationUserGraph
-
-misc: MiscellaneousGraph!
-
-stats: StatisticsGraph!
-
-user(
-  id: ID = null
-  ids: [ID] = null
-  orderBy: [OrderByGraph] = null
-  where: [WhereExpressionGraph] = null
-  skip: Int = null
-  take: Int = null
-): ApplicationUserGraph!
-
-userCount(
-  search: String = null
-): Int!
-
-users(
-  id: ID = null
-  ids: [ID] = null
-  orderBy: [OrderByGraph] = null
-  where: [WhereExpressionGraph] = null
-  skip: Int = null
-  take: Int = null
-  search: String = null
-): [ApplicationUserGraph]
-*/
