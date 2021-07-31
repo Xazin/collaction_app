@@ -8,11 +8,14 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:collaction_app/main.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 void main() {
   testWidgets('Example widget test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+    await initHiveForFlutter();
+    MyApp app = MyApp();
+    await tester.pumpWidget(app);
 
     // Verify that welcome text is shown
     expect(find.text('Hello user!'), findsOneWidget);

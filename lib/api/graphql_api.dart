@@ -1,12 +1,8 @@
-import 'dart:math';
-
 import 'package:collaction_app/api/queries.dart';
 import 'package:collaction_app/models/crowd_action_model.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-import '../dummy_data.dart';
-import '../home_screen.dart';
 
 final QueryOptions options = QueryOptions(
   document: gql(get_crowdactions_query),
@@ -65,26 +61,5 @@ class GraphQL_Parser {
     List<CrowdActionModel> models = List<CrowdActionModel>.from(parsed);
 
     return models;
-  }
-}
-
-void main() async {
-  // We're using HiveStore for persistence,
-  // so we need to initialize Hive.
-  await initHiveForFlutter();
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return GraphQLProvider(
-        client: client,
-        child: MaterialApp(
-            title: 'Welcome to CollAction',
-            theme: ThemeData(
-              primaryColor: Color(0xff23d884),
-            ),
-            home: HomeScreen()));
   }
 }
