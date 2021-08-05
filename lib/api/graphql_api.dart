@@ -3,7 +3,6 @@ import 'package:collaction_app/models/crowd_action_model.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-
 final QueryOptions options = QueryOptions(
   document: gql(get_crowdactions_query),
 );
@@ -48,7 +47,7 @@ class GraphQL_Parser {
   static List<CrowdActionModel> parseCollactionActionString(QueryResult input) {
     // Read the response from the server and convert it to a list of
     // CrowdactionModel objects
-    List<dynamic> parsed = input.data['crowdactions'].map( (crowdaction) {
+    List<dynamic> parsed = input.data!['crowdactions'].map( (crowdaction) {
       String name = crowdaction['name'];
       String description = crowdaction['description'];
 

@@ -5,17 +5,33 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'dart:io';
+
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:collaction_app/main.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-void main() {
+// class MockHiveInterface extends Mock implements HiveInterface {}
+// class MockHiveBox extends Mock implements Box {}
+import 'package:hive/hive.dart';
+
+// void initHive() {
+//   var path = Directory.current.path;
+//   Hive.init(path + '/test/hive_testing_path');
+//   Hive.openBox();
+// }
+
+void main() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  await initHiveForFlutter();
+
   testWidgets('Example widget test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await initHiveForFlutter();
     MyApp app = MyApp();
     await tester.pumpWidget(app);
+
 
     // Verify that welcome text is shown
     expect(find.text('Hello user!'), findsOneWidget);
