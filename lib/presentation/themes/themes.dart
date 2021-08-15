@@ -17,35 +17,41 @@ ThemeData lightTheme(BuildContext context) {
     buttonTheme: ButtonThemeData(
       buttonColor: kPrimaryColor,
     ),
-    inputDecorationTheme: InputDecorationTheme(
-      hintStyle: const TextStyle(
+    inputDecorationTheme: const InputDecorationTheme(
+      hintStyle: TextStyle(
         fontSize: 15,
-        fontWeight: FontWeight.w400,
-        color: kInactiveColor,
+        fontWeight: FontWeight.w300,
       ),
+      labelStyle: TextStyle(color: kInactiveColor),
       filled: true,
       fillColor: kAlmostTransparent,
-      enabledBorder: const UnderlineInputBorder(
+      focusColor: kInactiveColor,
+      enabledBorder: UnderlineInputBorder(
         borderSide: BorderSide.none,
+        borderRadius: BorderRadius.zero,
       ),
       focusedBorder: UnderlineInputBorder(
         borderSide: BorderSide(
-          color: kPrimaryColor,
+          color: kAccentColor,
+          width: 1.5,
         ),
+        borderRadius: BorderRadius.zero,
       ),
-      focusedErrorBorder: const UnderlineInputBorder(
+      focusedErrorBorder: UnderlineInputBorder(
         borderSide: BorderSide(
           color: kErrorColor,
+          width: 1.5,
         ),
+        borderRadius: BorderRadius.zero,
       ),
-      errorBorder: const UnderlineInputBorder(
+      errorBorder: UnderlineInputBorder(
         borderSide: BorderSide(
           color: kErrorColor,
+          width: 1.5,
         ),
+        borderRadius: BorderRadius.zero,
       ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 8.0,
-      ),
+      contentPadding: EdgeInsets.all(10.0),
     ),
   );
 }

@@ -125,7 +125,7 @@ class _CrowdActionCarouselState extends State<CrowdActionCarousel> {
                 position: _currentPage,
                 decorator: const DotsDecorator(
                   color: kDisabledButtonColor,
-                  activeColor: kIrisColor,
+                  activeColor: kAccentColor,
                 ),
                 onTap: (position) {
                   _currentPage = position;

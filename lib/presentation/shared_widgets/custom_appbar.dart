@@ -6,7 +6,9 @@ import '../themes/constants.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final BuildContext _context;
   final String title;
-  const CustomAppBar(this._context, {Key? key, required this.title})
+  final bool closable;
+  const CustomAppBar(this._context,
+      {Key? key, this.title = "", this.closable = false})
       : super(key: key);
 
   @override
@@ -15,14 +17,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: kSecondaryColor,
       elevation: 0.0,
       centerTitle: true,
-      leading: GestureDetector(
-        onTap: () => context.router.pop(),
-        child: const Icon(
-          Icons.arrow_back_ios_new,
-          color: kInactiveColor,
-          size: 28.0,
-        ),
-      ),
+      leading: !closable
+          ? GestureDetector(
+              onTap: () => context.router.pop(),
+              child: Image.asset('assets/images/icons/back_icon.png'),
+            )
+          : null,
+      actions: [
+        if (closable)
+          GestureDetector(
+            onTap: () => context.router.pop(),
+            child: Image.asset('assets/images/icons/close_icon.png'),
+          ),
+      ],
       title: Text(title, style: TextStyle(color: kPrimaryColor)),
     );
   }
