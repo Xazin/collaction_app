@@ -486,3 +486,7 @@ List<Map<String, dynamic>> countryListJson = [
   {"name": "Zambia", "flag": "🇿🇲", "code": "ZM", "dial_code": "+260"},
   {"name": "Zimbabwe", "flag": "🇿🇼", "code": "ZW", "dial_code": "+263"}
 ];
+
+final countries = countryListJson
+    .map((countryJson) => Country.fromJson(countryJson))
+    .toList();
