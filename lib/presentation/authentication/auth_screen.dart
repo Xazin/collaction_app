@@ -111,11 +111,10 @@ class _AuthPageState extends State<AuthPage> {
                               ],
                             ),
                             const SizedBox(height: 35.0),
-                            PhoneInput(isValid: (valid) {
-                              setState(() {
-                                _isPhoneValid = valid;
-                              });
-                            }),
+                            PhoneInput(
+                              isValid: (valid) =>
+                                  setState(() => _isPhoneValid = valid),
+                            ),
                             const SizedBox(height: 40),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
