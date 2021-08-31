@@ -30,16 +30,16 @@ class _PhoneInputState extends State<PhoneInput> {
 
   @override
   void initState() {
+    super.initState();
+
     if (widget.phone != null) {
       final country =
           countries.where((country) => country.code == widget.phone?.country);
 
       /// Strip country
-      if (country.isNotEmpty) {
-        _selected = country.first;
-      } else {
-        _selected = countries.where((country) => country.code == "NL").first;
-      }
+      _selected = country.isNotEmpty
+          ? country.first
+          : countries.where((country) => country.code == "NL").first;
 
       /// Strip phone
       final contact = widget.phone?.contact.split(" ");
@@ -58,7 +58,6 @@ class _PhoneInputState extends State<PhoneInput> {
         });
       }
     });
-    super.initState();
   }
 
   @override
@@ -85,7 +84,7 @@ class _PhoneInputState extends State<PhoneInput> {
                       Text(
                         _selected?.dial_code ?? "",
                         style: const TextStyle(fontSize: 16.0),
-                        key:const Key("dial_code"),
+                        key: const Key("dial_code"),
                       ),
                       const Icon(Icons.expand_more_outlined),
                     ],
@@ -132,16 +131,14 @@ class _PhoneInputState extends State<PhoneInput> {
   }
 
   void _showCountrySelectDialog() {
-    showDialog<void>(
+    showDialog(
       context: context,
-      barrierDismissible: true, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: CountrySearch(
-            onCountrySelected: _regionOnChange,
-          ),
-        );
-      },
+      barrierDismissible: true,
+      builder: (BuildContext context) => AlertDialog(
+        content: CountrySearch(
+          onCountrySelected: _regionOnChange,
+        ),
+      ),
     );
   }
 

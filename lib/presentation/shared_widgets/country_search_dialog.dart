@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 class CountrySearch extends StatefulWidget {
   final Function(Country)? onCountrySelected;
+
   const CountrySearch({Key? key, this.onCountrySelected}) : super(key: key);
 
   @override
@@ -23,22 +24,7 @@ class _CountrySearchState extends State<CountrySearch> {
             decoration: const InputDecoration(
               prefixIcon: Icon(Icons.search),
             ),
-            onChanged: (text) {
-              _countries.clear();
-
-              if (text.isEmpty) {
-                setState(() {
-                  _countries.addAll(countries);
-                });
-              } else {
-                setState(() {
-                  _countries.addAll(countries.where((country) =>
-                  country.name.toLowerCase().contains(text.toLowerCase()) ||
-                      country.code.toLowerCase().contains(text) ||
-                      country.dial_code.contains(text)));
-                });
-              }
-            },
+            onChanged: _searchCountry,
           ),
           Expanded(
             child: ListView.builder(
@@ -47,8 +33,8 @@ class _CountrySearchState extends State<CountrySearch> {
                 final country = _countries[index];
 
                 return InkWell(
-                  onTap:(){
-                    if(widget.onCountrySelected != null){
+                  onTap: () {
+                    if (widget.onCountrySelected != null) {
                       widget.onCountrySelected!(country);
                       Navigator.of(context).pop();
                     }
@@ -84,5 +70,21 @@ class _CountrySearchState extends State<CountrySearch> {
         ],
       ),
     );
+  }
+
+  /// Find country name or code matching search pattern
+  void _searchCountry(String text) {
+    _countries.clear();
+
+    setState(() {
+      if (text.isEmpty) {
+        _countries.addAll(countries);
+      } else {
+        _countries.addAll(countries.where((country) =>
+            country.name.toLowerCase().contains(text.toLowerCase()) ||
+            country.code.toLowerCase().contains(text) ||
+            country.dial_code.contains(text)));
+      }
+    });
   }
 }
