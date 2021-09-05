@@ -8,12 +8,11 @@
  */
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:phone_number/phone_number.dart';
 
 import '../shared_widgets/custom_appbar.dart';
+import '../shared_widgets/phone_input.dart';
 import '../shared_widgets/rectangular_button.dart';
 import '../themes/constants.dart';
-import 'utils/countries.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({Key? key}) : super(key: key);
@@ -28,13 +27,7 @@ class _AuthPageState extends State<AuthPage> {
   double _currentPage = 0.0;
 
   // Page One
-  Country? _selected;
-  final countries = countryListJson
-      .map((countryJson) => Country.fromJson(countryJson))
-      .toList();
-  final plugin = PhoneNumberUtil();
-  final _phoneNumberController = TextEditingController();
-  bool validatedNumber = false;
+  var _isPhoneValid = false;
 
   // Page Two
   late FocusNode focusNode0, focusNode1, focusNode2, focusNode3;
@@ -48,16 +41,6 @@ class _AuthPageState extends State<AuthPage> {
       setState(() {
         _currentPage = _pageController.page!;
       });
-    });
-
-    // Page One
-    _selected = countries.where((country) => country.code == "NL").first;
-    _phoneNumberController.addListener(() {
-      if (_phoneNumberController.value.text.isNotEmpty) {
-        setState(() {
-          _validatePhone(_selected!, _phoneNumberController.value.text);
-        });
-      }
     });
 
     // Page Two
@@ -128,87 +111,9 @@ class _AuthPageState extends State<AuthPage> {
                               ],
                             ),
                             const SizedBox(height: 35.0),
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: 115,
-                                  child: DropdownButtonFormField<Country?>(
-                                    onChanged: (value) =>
-                                        _regionOnChange(value),
-                                    icon:
-                                        const Icon(Icons.expand_more_outlined),
-                                    value: _selected,
-                                    decoration: const InputDecoration(
-                                      labelStyle: TextStyle(fontSize: 20.0),
-                                      contentPadding: EdgeInsets.only(
-                                        left: 10,
-                                        top: 19.5,
-                                        bottom: 19.5,
-                                      ),
-                                    ),
-                                    items: countries
-                                        .map(
-                                          (country) =>
-                                              DropdownMenuItem<Country?>(
-                                            value: country,
-                                            child: Row(
-                                              children: [
-                                                Image.asset(
-                                                  'icons/flags/png/${country.code.toLowerCase()}.png',
-                                                  package: 'country_icons',
-                                                  width: 24.0,
-                                                ),
-                                                const SizedBox(width: 10),
-                                                Text(
-                                                  country.dial_code,
-                                                  style: const TextStyle(
-                                                      fontSize: 16.0),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        )
-                                        .toList(),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: TextFormField(
-                                    validator: (val) =>
-                                        validatedNumber ? null : '',
-                                    controller: _phoneNumberController,
-                                    style: const TextStyle(fontSize: 20.0),
-                                    decoration: const InputDecoration(
-                                        labelText: 'Phone number',
-                                        hintText: '00 00 00 00'),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 16.0, top: 6),
-                                    child: Text(
-                                      validatedNumber
-                                          ? 'We will send you a code to activate your account'
-                                          : _phoneNumberController
-                                                  .value.text.isEmpty
-                                              ? 'Enter a valid phone number'
-                                              : 'Your phone number is not valid',
-                                      style: TextStyle(
-                                          color: validatedNumber
-                                              ? kInactiveColor
-                                              : _phoneNumberController
-                                                      .value.text.isEmpty
-                                                  ? kInactiveColor
-                                                  : kErrorColor),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            PhoneInput(
+                              isValid: (valid) =>
+                                  setState(() => _isPhoneValid = valid),
                             ),
                             const SizedBox(height: 40),
                             Row(
@@ -217,15 +122,15 @@ class _AuthPageState extends State<AuthPage> {
                                 Expanded(
                                   child: RectangularButton(
                                     text: 'Next',
-                                    isEnabled: _isValidToContinue() && true,
-                                    onPressed: !_isValidToContinue()
-                                        ? null
-                                        : () {
-                                            _pageController.nextPage(
-                                                duration: const Duration(
-                                                    milliseconds: 400),
-                                                curve: Curves.easeIn);
-                                          },
+                                    isEnabled: _isValidToContinue(),
+                                    onPressed: () {
+                                      if (_isValidToContinue()) {
+                                        _pageController.nextPage(
+                                            duration: const Duration(
+                                                milliseconds: 400),
+                                            curve: Curves.easeIn);
+                                      }
+                                    },
                                   ),
                                 ),
                               ],
@@ -337,20 +242,7 @@ class _AuthPageState extends State<AuthPage> {
 
   // Page One
   bool _isValidToContinue() {
-    return validatedNumber;
-  }
-
-  void _regionOnChange(Country? value) {
-    setState(() {
-      _selected = value;
-      _validatePhone(value!, _phoneNumberController.value.text);
-    });
-  }
-
-  Future<bool> _validatePhone(Country country, String number) async {
-    final dialCode = int.tryParse(country.dial_code);
-    final phoneNumber = "$dialCode ${number.trim()}";
-    return validatedNumber = await plugin.validate(phoneNumber, country.code);
+    return _isPhoneValid;
   }
 
   // Page Two
