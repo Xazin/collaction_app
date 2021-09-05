@@ -1,4 +1,4 @@
-/**
+/*
  * TODO:
  * - Abstract into widgets --MOST IMPORTANT FOR MERGE
  * - New account flow --MOST IMPORTANT FOR MERGE
@@ -28,10 +28,17 @@ class _AuthPageState extends State<AuthPage> {
 
   // Page One
   var _isPhoneValid = false;
+  late PhoneInput _phoneInput;
+  late TextEditingController _phoneInputController;
 
   // Page Two
-  late FocusNode focusNode0, focusNode1, focusNode2, focusNode3;
-  late TextEditingController digit0, digit1, digit2, digit3;
+  late FocusNode focusNode0,
+      focusNode1,
+      focusNode2,
+      focusNode3,
+      focusNode4,
+      focusNode5;
+  late TextEditingController digit0, digit1, digit2, digit3, digit4, digit5;
 
   @override
   void initState() {
@@ -43,15 +50,26 @@ class _AuthPageState extends State<AuthPage> {
       });
     });
 
+    // Page One
+    _phoneInputController = TextEditingController();
+    _phoneInput = PhoneInput(
+      _phoneInputController,
+      isValid: (valid) => setState(() => _isPhoneValid = valid),
+    );
+
     // Page Two
     focusNode0 = FocusNode();
     focusNode1 = FocusNode();
     focusNode2 = FocusNode();
     focusNode3 = FocusNode();
+    focusNode4 = FocusNode();
+    focusNode5 = FocusNode();
     digit0 = TextEditingController();
     digit1 = TextEditingController();
     digit2 = TextEditingController();
     digit3 = TextEditingController();
+    digit4 = TextEditingController();
+    digit5 = TextEditingController();
   }
 
   @override
@@ -61,10 +79,14 @@ class _AuthPageState extends State<AuthPage> {
     focusNode1.dispose();
     focusNode2.dispose();
     focusNode3.dispose();
+    focusNode4.dispose();
+    focusNode5.dispose();
     digit0.dispose();
     digit1.dispose();
     digit2.dispose();
     digit3.dispose();
+    digit4.dispose();
+    digit5.dispose();
     super.dispose();
   }
 
@@ -111,10 +133,7 @@ class _AuthPageState extends State<AuthPage> {
                               ],
                             ),
                             const SizedBox(height: 35.0),
-                            PhoneInput(
-                              isValid: (valid) =>
-                                  setState(() => _isPhoneValid = valid),
-                            ),
+                            _phoneInput,
                             const SizedBox(height: 40),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -189,8 +208,18 @@ class _AuthPageState extends State<AuthPage> {
                                 _digitField(
                                     digit3,
                                     focusNode3,
+                                    (value) => _changeFocus(
+                                        value, focusNode4, focusNode2)),
+                                _digitField(
+                                    digit4,
+                                    focusNode4,
+                                    (value) => _changeFocus(
+                                        value, focusNode5, focusNode3)),
+                                _digitField(
+                                    digit5,
+                                    focusNode5,
                                     (value) =>
-                                        _changeFocus(value, null, focusNode2)),
+                                        _changeFocus(value, null, focusNode4)),
                               ],
                             ),
                             const SizedBox(height: 15.0),
@@ -199,9 +228,7 @@ class _AuthPageState extends State<AuthPage> {
                               children: [
                                 Expanded(
                                   child: TextButton(
-                                    onPressed: () {
-                                      // TODO: Implement resend code function
-                                    },
+                                    onPressed: () => _reset(),
                                     child: const Text(
                                         'No code? Click here and we will send a new one',
                                         style: TextStyle(
@@ -250,17 +277,17 @@ class _AuthPageState extends State<AuthPage> {
       ValueChanged<String> onChanged) {
     return Padding(
       padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.025),
+          horizontal: MediaQuery.of(context).size.width * 0.0125),
       child: SizedBox(
-        height: MediaQuery.of(context).size.width * 0.16,
-        width: MediaQuery.of(context).size.width * 0.16,
+        height: MediaQuery.of(context).size.width * 0.12,
+        width: MediaQuery.of(context).size.width * 0.12,
         child: TextFormField(
           controller: controller,
           textAlignVertical: TextAlignVertical.center,
           textAlign: TextAlign.center,
           showCursor: false,
           keyboardType: TextInputType.number,
-          style: const TextStyle(fontSize: 40),
+          style: const TextStyle(fontSize: 28),
           maxLength: 1,
           decoration: InputDecoration(
             contentPadding:
@@ -286,7 +313,15 @@ class _AuthPageState extends State<AuthPage> {
     }
 
     if (value.isNotEmpty && next == null) {
-      // TODO: Create validation method on
+      // TODO: Call validation method/BLOC
+      return;
     }
+  }
+
+  void _reset() {
+    _pageController.animateTo(0.0,
+        duration: const Duration(milliseconds: 400), curve: Curves.easeIn);
+    _phoneInputController.text = '';
+    _isPhoneValid = false;
   }
 }

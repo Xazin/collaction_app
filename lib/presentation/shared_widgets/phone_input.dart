@@ -13,8 +13,9 @@ class PhoneInput extends StatefulWidget {
   final Function(PhoneResponse)? onChange;
 
   final PhoneResponse? phone;
-
-  const PhoneInput({Key? key, this.isValid, this.onChange, this.phone})
+  final TextEditingController phoneNumberController;
+  const PhoneInput(this.phoneNumberController,
+      {Key? key, this.isValid, this.onChange, this.phone})
       : super(key: key);
 
   @override
@@ -25,7 +26,7 @@ class _PhoneInputState extends State<PhoneInput> {
   Country? _selected;
 
   final plugin = PhoneNumberUtil();
-  final _phoneNumberController = TextEditingController();
+  final _phoneNumberFocusNode = FocusNode();
   bool validatedNumber = false;
 
   @override
@@ -45,17 +46,16 @@ class _PhoneInputState extends State<PhoneInput> {
       final contact = widget.phone?.contact.split(" ");
 
       if (contact?.isNotEmpty == true && contact?.length == 2) {
-        _phoneNumberController.text = contact?.last ?? "";
+        widget.phoneNumberController.text = contact?.last ?? "";
       }
     } else {
       _selected = countries.where((country) => country.code == "NL").first;
     }
 
-    _phoneNumberController.addListener(() {
-      if (_phoneNumberController.value.text.isNotEmpty) {
-        setState(() {
-          _validatePhone(_selected!, _phoneNumberController.value.text);
-        });
+    widget.phoneNumberController.addListener(() {
+      if (widget.phoneNumberController.value.text.isNotEmpty) {
+        _validatePhone(_selected!, widget.phoneNumberController.text);
+        setState(() {});
       }
     });
   }
@@ -94,11 +94,28 @@ class _PhoneInputState extends State<PhoneInput> {
               const SizedBox(width: 10),
               Expanded(
                 child: TextFormField(
-                  controller: _phoneNumberController,
+                  controller: widget.phoneNumberController,
+                  focusNode: _phoneNumberFocusNode,
+                  onEditingComplete: () async {
+                    _phoneNumberFocusNode.unfocus();
+
+                    widget.phoneNumberController.text = await plugin.format(
+                      widget.phoneNumberController.text.replaceAll(' ', ''),
+                      _selected!.code,
+                    );
+
+                    widget.phoneNumberController.selection =
+                        TextSelection.fromPosition(
+                      TextPosition(
+                          offset: widget.phoneNumberController.text.length),
+                    );
+                  },
                   style: const TextStyle(fontSize: 20.0),
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                      labelText: 'Phone number', hintText: '00 00 00 00'),
+                    labelText: 'Phone number',
+                    hintText: '00 00 00 00',
+                  ),
                 ),
               ),
             ],
@@ -112,15 +129,16 @@ class _PhoneInputState extends State<PhoneInput> {
                 child: Text(
                   validatedNumber
                       ? 'We will send you a code to activate your account'
-                      : (_phoneNumberController.value.text.isEmpty
+                      : (widget.phoneNumberController.value.text.isEmpty
                           ? 'Enter a valid phone number'
                           : 'Your phone number is not valid'),
                   style: TextStyle(
-                      color: validatedNumber
-                          ? kInactiveColor
-                          : _phoneNumberController.value.text.isEmpty
-                              ? kInactiveColor
-                              : kErrorColor),
+                    color: validatedNumber
+                        ? kInactiveColor
+                        : widget.phoneNumberController.value.text.isEmpty
+                            ? kInactiveColor
+                            : kErrorColor,
+                  ),
                 ),
               ),
             ),
@@ -145,7 +163,7 @@ class _PhoneInputState extends State<PhoneInput> {
   void _regionOnChange(Country? value) {
     setState(() {
       _selected = value;
-      _validatePhone(value!, _phoneNumberController.value.text);
+      _validatePhone(value!, widget.phoneNumberController.value.text);
     });
   }
 
@@ -170,12 +188,6 @@ class _PhoneInputState extends State<PhoneInput> {
     _triggerValidReturn(validatedNumber);
 
     return validatedNumber;
-  }
-
-  @override
-  void dispose() {
-    _phoneNumberController.dispose();
-    super.dispose();
   }
 }
 

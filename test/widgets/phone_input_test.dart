@@ -14,8 +14,8 @@ void main() {
 
     testWidgets('Initial Phone input is split to country and contact',
         (WidgetTester tester) async {
-      final phoneInput =
-          PhoneInput(phone: PhoneResponse("UG", "256 778916353"));
+      final phoneInput = PhoneInput(TextEditingController(),
+          phone: PhoneResponse("UG", "256 778916353"));
 
       await tester.pumpWidget(_wrapInMaterial(phoneInput));
 
@@ -34,8 +34,10 @@ void main() {
     testWidgets('Invalid Phone number triggers callback with false',
         (WidgetTester tester) async {
       final phoneInput = PhoneInput(
-          phone: PhoneResponse("NL", "31 77891635"),
-          isValid: (valid) => print(valid));
+        TextEditingController(),
+        phone: PhoneResponse("NL", "31 77891635"),
+        isValid: (valid) {}, //
+      );
 
       await tester.pumpWidget(_wrapInMaterial(phoneInput));
 
