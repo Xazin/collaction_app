@@ -6,6 +6,7 @@
  * - Not whitelisted number flow --CAN BE DONE IN SEPARATE TASK
  * - Invite friends flow --CAN BE DONE IN SEPARATE TASK
  */
+import 'package:collaction_app/presentation/authentication/pages/profile_photo.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 
@@ -28,6 +29,8 @@ class _AuthPageState extends State<AuthPage> {
   double _currentPage = 0.0;
   late List<Widget> _pages;
 
+  bool _displayDots = true;
+
   // Page One
   final GlobalKey<VerifyPhoneState> _verifyPhoneKey = GlobalKey();
 
@@ -46,8 +49,11 @@ class _AuthPageState extends State<AuthPage> {
         reset: _reset,
       ),
       EnterUserName(onNext: (){
-
-      })
+        setState(()=> _displayDots = false);
+        _nextPage();
+      }),
+      SelectProfilePhoto(onNext: _nextPage,
+      onSkip: ()=>{},)
     ];
 
     _pageController.addListener(() {
@@ -85,8 +91,8 @@ class _AuthPageState extends State<AuthPage> {
                     children: _pages,
                   ),
                 ),
-                DotsIndicator(
-                  position: _currentPage,
+                if (_displayDots) DotsIndicator(
+                  position: _currentPage%3,
                   dotsCount: 3,
                   decorator: const DotsDecorator(
                     activeColor: kAccentColor,
@@ -94,7 +100,7 @@ class _AuthPageState extends State<AuthPage> {
                     size: Size(12.0, 12.0),
                     activeSize: Size(12.0, 12.0),
                   ),
-                ),
+                ) else Container(),
               ],
             ),
           ),

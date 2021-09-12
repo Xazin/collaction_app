@@ -11,10 +11,10 @@ class EnterUserName extends StatefulWidget {
   const EnterUserName({Key? key, required this.onNext}) : super(key: key);
 
   @override
-  _EnterVerificationCodeState createState() => _EnterVerificationCodeState();
+  _EnterUserNameState createState() => _EnterUserNameState();
 }
 
-class _EnterVerificationCodeState extends State<EnterUserName> {
+class _EnterUserNameState extends State<EnterUserName> {
   var _isNameValid = false;
   late TextEditingController _usernameController;
   final _formKey = GlobalKey<FormState>();
@@ -84,6 +84,7 @@ class _EnterVerificationCodeState extends State<EnterUserName> {
                 isEnabled: _isNameValid,
                 onPressed: () {
                   if (_isNameValid) {
+                    FocusScope.of(context).unfocus();
                     widget.onNext();
                   }
                 },
